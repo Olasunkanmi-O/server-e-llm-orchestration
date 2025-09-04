@@ -1,0 +1,8 @@
+fastapi
+uvicorn[standard]
+transformers
+httpx
+python-dotenv
+pydantic
+safetensors
+aiohttp
