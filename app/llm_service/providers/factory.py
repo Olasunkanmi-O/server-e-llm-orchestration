@@ -17,3 +17,9 @@ def get_provider(provider_name: str):
         return GoogleProvider()
     else:
         raise ValueError(f"Unknown LLM provider: {provider_name}")
+
+def get_api_key(provider: str) -> str:
+    match provider:
+        case "openai": return settings.OPENAI_API_KEY
+        case "google": return settings.GEMINI_API_KEY
+        case _: raise ValueError(f"No API key configured for provider: {provider}")

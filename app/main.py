@@ -1,8 +1,9 @@
 # app/main.py
 import asyncio
-from fastapi import FastAPI
+from fastapi import FastAPI, Request
 from app.routers import categorize, scenario, review, health  # import routers from the package
 from app.llm_service.db import close_db_pool, get_pool  # needed for periodic tasks
+from app.llm_service.providers.factory import get_provider
 
 app = FastAPI(
     title="AI Financial Assistant",
@@ -32,6 +33,22 @@ async def startup_event():
 async def shutdown_event():
     await close_db_pool()
 
+
 @app.get("/")
 async def root():
-    return {"message": "FiscalGuide LLM API is running!"}
+    return {"message": "LLM Orchestration Server is running!"}
+
+
+@app.post("/providers/{provider_name}")
+async def route_to_provider(provider_name: str, request: Request):
+    body = await request.json()
+    prompt = body.get("prompt")
+    print(f"Received prompt for provider '{provider_name}': {prompt}")
+
+
+    try:
+        provider = get_provider(provider_name)
+        result = provider.generate_response(prompt)
+        return result
+    except Exception as e:
+        return {"error": str(e)}
